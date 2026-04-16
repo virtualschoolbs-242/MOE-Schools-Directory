@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Directory | Ministry of Education, The Bahamas</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --aqua:#00838f;--aqua-dark:#006064;--aqua-light:#e0f7fa;
+  --gold:#f9a825;--gold-light:#fff8e1;
+  --navy:#1a237e;
+  --bg:#f5f7fa;--white:#fff;--text:#263238;--text-light:#546e7a;
+  --border:#cfd8dc;--shadow:0 2px 8px rgba(0,0,0,.08);
+  --radius:10px;
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;margin:0;padding:0}
+a{color:var(--aqua);text-decoration:none}
+
+/* ─── STATS BAR ─── */
+.stats-bar{display:flex;gap:10px;padding:16px 20px;flex-wrap:wrap;justify-content:center;background:var(--white);border-bottom:1px solid var(--border)}
+.stat{background:var(--aqua-light);color:var(--aqua-dark);border-radius:8px;padding:8px 16px;font-size:.82rem;text-align:center}
+.stat strong{font-size:1.1rem;display:block;color:var(--navy)}
+
+/* ─── SEARCH / FILTERS ─── */
+.controls{background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.controls-inner{display:flex;gap:12px;flex-wrap:wrap;align-items:center;max-width:1300px;margin:auto}
+.search-box{flex:1 1 260px;position:relative}
+.search-box input{width:100%;padding:9px 14px 9px 38px;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;transition:border .2s}
+.search-box input:focus{outline:none;border-color:var(--aqua)}
+.search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light)}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;font-size:.82rem;transition:all .2s;user-select:none}
+.pill:hover{border-color:var(--aqua)}
+.pill.active{background:var(--aqua);color:#fff;border-color:var(--aqua)}
+.result-count{font-size:.82rem;color:var(--text-light);white-space:nowrap}
+
+/* ─── MAIN CONTENT ─── */
+.main{max-width:1300px;margin:0 auto;padding:18px 20px 40px}
+
+/* ─── DISTRICT CARD ─── */
+.district{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;border:1px solid var(--border);transition:box-shadow .2s}
+.district:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.district-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;gap:12px;user-select:none}
+.district-header:hover{background:var(--aqua-light)}
+.district-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.district-badge{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--aqua),var(--aqua-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0}
+.district-name{font-size:1.05rem;font-weight:600}
+.district-meta{font-size:.8rem;color:var(--text-light);margin-top:2px}
+.school-count-badge{background:var(--aqua-light);color:var(--aqua-dark);padding:3px 10px;border-radius:14px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.chevron{transition:transform .3s;color:var(--text-light);flex-shrink:0}
+.district.open .chevron{transform:rotate(180deg)}
+
+/* ─── DISTRICT OFFICE INFO ─── */
+.district-body{display:none;border-top:1px solid var(--border)}
+.district.open .district-body{display:block}
+.office-info{background:var(--gold-light);padding:14px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;border-bottom:1px solid #f0e6c0}
+.office-info-item{font-size:.85rem}
+.office-info-item .label{font-weight:600;display:block;margin-bottom:2px;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light)}
+.office-info-item .value{color:var(--text)}
+.placeholder{color:#b0bec5;font-style:italic}
+
+/* ─── SCHOOL GRID ─── */
+.schools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;padding:16px 16px}
+.school-card{display:flex;gap:12px;padding:12px;border-radius:8px;border:1px solid var(--border);transition:all .2s;background:var(--white)}
+.school-card:hover{border-color:var(--aqua);box-shadow:0 2px 10px rgba(0,131,143,.1)}
+.school-crest{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--aqua-dark));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.school-crest svg{width:26px;height:26px;fill:#fff;opacity:.85}
+.school-info{min-width:0;flex:1}
+.school-name{font-weight:600;font-size:.88rem;margin-bottom:3px;line-height:1.3}
+.school-type{display:inline-block;padding:1px 7px;border-radius:4px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.type-primary{background:#e8f5e9;color:#2e7d32}
+.type-secondary{background:#e3f2fd;color:#1565c0}
+.type-all-age{background:#f3e5f5;color:#7b1fa2}
+.type-pre-primary{background:#fff3e0;color:#e65100}
+.type-special{background:#fce4ec;color:#c62828}
+.school-detail{font-size:.8rem;color:var(--text-light);display:flex;align-items:flex-start;gap:5px;margin-top:3px;line-height:1.4}
+.school-detail svg{width:13px;height:13px;flex-shrink:0;margin-top:2px;opacity:.6}
+.no-results{text-align:center;padding:40px 20px;color:var(--text-light);font-size:.95rem}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:600px){
+  .schools-grid{grid-template-columns:1fr;padding:10px}
+  .office-info{grid-template-columns:1fr}
+  .district-header{padding:12px 14px}
+  .stats-bar{gap:6px;padding:12px 14px}
+  .stat{padding:6px 10px;font-size:.78rem}
+  .stat strong{font-size:.95rem}
+  .controls{padding:10px 14px}
+}
+
+/* ─── PRINT ─── */
+@media print{
+  .controls{position:static;box-shadow:none}
+  .district-body{display:block!important}
+  .chevron{display:none}
+}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.school-card{animation:fadeIn .3s ease}
+</style>
+</head>
+<body>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat"><strong>161</strong> Public Schools</div>
+  <div class="stat"><strong>10</strong> Districts</div>
+  <div class="stat"><strong>85</strong> Primary</div>
+  <div class="stat"><strong>40</strong> Secondary</div>
+  <div class="stat"><strong>14</strong> All Age</div>
+  <div class="stat"><strong>11</strong> Pre-primary</div>
+  <div class="stat"><strong>10</strong> Special</div>
+</div>
+
+<!-- SEARCH & FILTERS -->
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search by school name, island, or settlement...">
+    </div>
+    <div class="filter-pills" id="filterPills">
+      <span class="pill active" data-filter="all">All Types</span>
+      <span class="pill" data-filter="Primary">Primary</span>
+      <span class="pill" data-filter="Secondary">Secondary</span>
+      <span class="pill" data-filter="All Age">All Age</span>
+      <span class="pill" data-filter="Pre-primary">Pre-primary</span>
+      <span class="pill" data-filter="Special">Special</span>
+    </div>
+    <span class="result-count" id="resultCount">161 schools</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main" id="districtContainer"></main>
+
+<script>
+const DATA={"Southern New Providence Secondary":[{"n":"A. F. Adderley High School","t":"Secondary","a":"Baillou Hill Road & Roberts Drive","p":"242-325-1161","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Anatol Rodgers High School","t":"Secondary","a":"Faith Avenue South","p":"242-361-6573","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"C. C. Sweeting Senior High School","t":"Secondary","a":"College Avenue","p":"242-356-5041/2","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"C. R. Walker Senior High","t":"Secondary","a":"Baillou Hill Road  School Lane  Market Street","p":"242-326-2001","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Preston H. Albury High","t":"Secondary","a":"Henzel Kemp Drive","p":"242-334-2266","i":"Eleuthera","l":"Rural","s":"Rock Sound"},{"n":"Programme S. U. R. E/Genesis","t":"Secondary","a":"Tripp Circle","p":"242-352-7873","i":"Grand Bahama","l":"Urban","s":""},{"n":"Rum Cay All Age","t":"All Age","a":"Chapel Street","p":"242-331-2836","i":"RUM CAY","l":"Rural","s":"Port Nelson"},{"n":"The Government High School","t":"Secondary","a":"Bahamas Games Blvd.","p":"242-325-6491/2","i":"New Providence","l":"Urban","s":"Nassau"}],"South Central Bahamas":[{"n":"A. Loftus Roker High","t":"Secondary","a":"Pompey Bay","p":"242-344-3153","i":"Acklins","l":"Rural","s":"Pompey Bay"},{"n":"Admiral Ferguson High","t":"Secondary","a":"Colonel Hill  Crooked Island","p":"242-344-2655","i":"Crooked Island","l":"Rural","s":"Colonel Hill"},{"n":"Inagua All Age","t":"All Age","a":"Smith Street","p":"242-339-1301","i":"Inagua","l":"Rural","s":"Matthew Town"},{"n":"Louise McDonald High","t":"Secondary","a":"Alice Town","p":"242-347-3380","i":"Bimini","l":"Urban","s":"Alice Town"},{"n":"Maurice E. Moore Primary","t":"Primary","a":"Sandcombe Drive","p":"242-373-7981/2","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"Rozelda M. Woodside Primary (Mastic Point Primary)","t":"Primary","a":"Bay Street, Mastic Point","p":"242-329-3032 or 242-225-8362","i":"Andros","l":"Rural","s":"Mastic Point"},{"n":"Sadie Curtis Primary","t":"Primary","a":"Charles W. Saunders Highway","p":"242-392-7080","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Samuel Guy Pinder All Age","t":"All Age","a":"Leo Pinder Drive  Spanish Wells   Eleuthera","p":"242-333-4052","i":"Eleuthera","l":"Rural","s":"Spanish Wells"},{"n":"Sister Mary Patricia Russell Junior High","t":"Secondary","a":"Sunset Highway","p":"242-352-8886/7/ 242-826-8795","i":"Grand Bahama","l":"Urban","s":"Lucaya"},{"n":"Ulric H. Ferguson Primary","t":"Primary","a":"Cabbage Hill, Crooked Island","p":"242-344-2300","i":"Crooked Island","l":"Urban","s":"Cabbage Hill"},{"n":"United Estates Primary School","t":"Primary","a":"Queens Highway  Harbour Estates","p":"242-452-2185","i":"San Salvador","l":"Urban","s":""},{"n":"Virtual School Bahamas","t":"All Age","a":"Mable Walker PD Institute  Tucker Road","p":"(242)323-4837","i":"Virtual","l":"Urban","s":"Blue Hill"}],"Western New Providence Primary":[{"n":"Adelaide Primary","t":"Primary","a":"Adelaide Village","p":"242-362-1020","i":"New Providence","l":"Rural","s":"Adelaide"},{"n":"Albury Sayle Primary","t":"Primary","a":"Nassau Street","p":"242-323-6058","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Andy Gar Preschool","t":"Pre-primary","a":"Williams Drive off Cowpen Road","p":"242-341-0624/5","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"C. V. Bethel Senior High","t":"Secondary","a":"East Street South","p":"242-392-9250/4","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Centre for Exceptional Learners","t":"Special","a":"Queens Highway","p":"242-332-3240","i":"Eleuthera","l":"Urban","s":"Governor's Harbour"},{"n":"Eva Hilton Primary","t":"Primary","a":"Gregory Street","p":"242-323-6829","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Gambier Primary School","t":"Primary","a":"Fernander Road, Gambier Village","p":"(24)2-327-7430, 242- 327-0832","i":"New Providence","l":"Urban","s":"Gambier"},{"n":"Garvin Tynes Primary","t":"Primary","a":"Alexander Boulevard","p":"242-341-7872","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Gerald Cash Primary","t":"Primary","a":"Flamingo Gardens","p":"242-361-2028","i":"New Providence","l":"Urban","s":"Carmichael"},{"n":"Mangrove Cay High School","t":"Secondary","a":"Swains Cay","p":"242-369-0197","i":"Andros","l":"Urban","s":"Swains Mangrove Cay"},{"n":"N. G. M. Major High School","t":"Secondary","a":"Buckley's, Long Island, Bahamas","p":"242-337-0335","i":"Long Island","l":"Rural","s":"Buckley's"},{"n":"Stapledon School","t":"Special","a":"Dolphin Drive","p":"242-323-4669/242-323-6000","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Stephen Dillet Primary","t":"Primary","a":"Wulff Road & Windsor Lane","p":"242-322-4291","i":"New Providence","l":"Urban","s":"Centreville"},{"n":"Sybil Strachan Primary","t":"Primary","a":"Carmichael Road","p":"242-361-3922","i":"New Providence","l":"Urban","s":"Carmichael"},{"n":"T. G. Glover Primary","t":"Primary","a":"Horse Shoe Drive","p":"242-328-7600","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Tiny Tot Preschool","t":"Pre-primary","a":"#55 Melvern Road, Yellow Elder","p":"242-323-8829","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Willard Patton Preschool","t":"Pre-primary","a":"Agusta Street & South Street","p":"242-322-8271","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Woodcock Primary School","t":"Primary","a":"West Street & Hospital Lane","p":"242-323-5971","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Yellow Elder Primary School","t":"Primary","a":"Baillou Road & Celery Drive","p":"242-323-6317","i":"New Providence","l":"Urban","s":"Nassau"}],"Abaco":[{"n":"Amy Roberts Primary School","t":"Primary","a":"Green Turtle Cay","p":"242-365-4108","i":"Abacos","l":"Rural","s":"Green Turtle Cay"},{"n":"Carlton E. Francis Primary","t":"Primary","a":"Faith United Way, Baillou Hill Road","p":"242-361-6157","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Cherokee Sound Primary","t":"Primary","a":"Cherokee Sound Abaco Bahamas","p":"+12423662230","i":"Abacos","l":"Rural","s":"Cherokee Sound"},{"n":"Cooper's Town Primary","t":"Primary","a":"Sherlin C. Bootle Highway","p":"242-365-0237","i":"Abacos","l":"Rural","s":"Cooper's Town"},{"n":"Crossing Rocks Primary","t":"Primary","a":"Crossing Rocks","p":"242-366-3236","i":"Abacos","l":"Urban","s":""},{"n":"Fox Town Primary","t":"Primary","a":"Sherlin C. Bootle Highway","p":"242-365-2121","i":"Abacos","l":"Rural","s":"Fox Town"},{"n":"Great Guana Cay","t":"Primary","a":"Great Guana Cay","p":"242-365-5013","i":"Abacos","l":"Urban","s":"Great Guana Cay"},{"n":"Hope Town Primary","t":"Primary","a":"Upper Road","p":"242-366-0176","i":"Abacos","l":"Rural","s":"Hope Town"},{"n":"James A. Pinder Primary","t":"Primary","a":"School Lane  Sandy Point  Abaco, The Bahamas","p":"242-366-4015","i":"Abacos","l":"Urban","s":"Sandy Point"},{"n":"Mangrove Bush Primary","t":"Primary","a":"Queen's Highway","p":"242-337-0308","i":"Long Island","l":"Rural","s":"Mangrove Bush"},{"n":"Mayaguana Comprehensive School","t":"All Age","a":"Pirate's Well","p":"","i":"Mayaguana","l":"Urban","s":""},{"n":"Palmdale Primary School","t":"Primary","a":"Bradley Street  Madeira Street, Palmdale","p":"242-393-8352","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Sandilands Primary","t":"Primary","a":"Bernard Road","p":"242-324-2023","i":"New Providence","l":"Urban","s":"Fox Hill"}],"ECLR (Exuma, Cat Island, Long Island, Ragged Island)":[{"n":"Arthur's Town Comprehensive","t":"All Age","a":"Arthur's Town","p":"(242) 354-2175","i":"Cat Island","l":"Rural","s":""},{"n":"Bimini Primary","t":"Primary","a":"Bailey Town","p":"242-347-3386","i":"Bimini","l":"Urban","s":"Bailey Town"},{"n":"Exuma School for Exceptional Learners","t":"Special","a":"George Town, Exuma","p":"","i":"EXUMA","l":"Rural","s":"George Town"},{"n":"Farmer's Cay Comprehensive School","t":"All Age","a":"Queen's Highway","p":"242-355-4031","i":"Exuma","l":"Rural","s":"Little Farmer's Cay"},{"n":"Forest Primary","t":"Primary","a":"The Forest","p":"242-358-8047","i":"Exuma","l":"Rural","s":"The Forest"},{"n":"George Town Primary","t":"Primary","a":"Queen's Highway","p":"242-336-2133","i":"Exuma","l":"Urban","s":"George Town"},{"n":"Judith P. Thompson Primary","t":"Primary","a":"West & Collins Avenue","p":"242-325-4248","i":"New Providence","l":"Urban","s":"Centreville"},{"n":"Lowe Sound Primary School","t":"Primary","a":"Queens' s Highway","p":"242-225-8834 / 242-329-7024","i":"Andros","l":"Urban","s":"Lowe Sound"},{"n":"Lower Deadman's Cay","t":"Primary","a":"Queen's Highway  Deadman's Cay  Long Island, Bahamas","p":"242-337-0544","i":"Long Island","l":"Rural","s":"Deadman's Cay"},{"n":"Moore's Island All Age","t":"All Age","a":"Farm Road","p":"242-366-6012","i":"Abacos","l":"Rural","s":"Hard Bargain, Moore's Island"},{"n":"Moss Town Primary","t":"Primary","a":"Queens Highway,  Moss Town, Exuma","p":"242-345-0041","i":"Exuma","l":"Rural","s":"Moss Town"},{"n":"Mount Thompson Primary","t":"Primary","a":"Mount Thompson, Exuma, Bahamas","p":"242-358-7043","i":"Exuma","l":"Rural","s":"Mount Thompson"},{"n":"North Eleuthera High","t":"Secondary","a":"Chapel Street","p":"242-335-1245","i":"Eleuthera","l":"Urban","s":"Lower Bogue"},{"n":"North Long Island High","t":"Secondary","a":"Simms  Long Island","p":"242-338-8551","i":"Long Island","l":"Rural","s":""},{"n":"Old Bight High","t":"Secondary","a":"Queen's Highway","p":"242-342-4057","i":"Cat Island","l":"Rural","s":"Old Bight"},{"n":"R. N. Gomez Comprehensive","t":"All Age","a":"William Dean Sr. Highway","p":"242-367-8727, 242-225-8984","i":"Berry Islands","l":"Rural","s":"Bullock's Harbour"},{"n":"Rock Sound Primary","t":"Primary","a":"Fish Street  Rock Sound   Eleuthera, Bahamas","p":"242-334-2204","i":"Eleuthera","l":"Urban","s":"Rock Sound"},{"n":"Roker's Point Primary","t":"Primary","a":"Queen's Highway","p":"242-358-5025","i":"Exuma","l":"Urban","s":"Rokers Point"},{"n":"Sherlin C. Bootle Secondary School","t":"Secondary","a":"S C Bootle Highway  Cooper's Town","p":"+12428084595","i":"Abacos","l":"Urban","s":"Cooper's Town"},{"n":"Staniard Creek Primary","t":"Primary","a":"Staniard Creek, Central Andros","p":"242-368-6297","i":"Andros","l":"Rural","s":"Staniard Creek"},{"n":"Stuart Manor Primary School","t":"Primary","a":"Stuart Manor","p":"242-345-2327 / 242- 524-1673","i":"Exuma","l":"Rural","s":"Stuart Manor"},{"n":"Williams Town Primary","t":"Primary","a":"Williams Town","p":"12423454050","i":"Exuma","l":"Rural","s":"Williams Town"}],"Grand Bahama & Bimini":[{"n":"Aurelia Miller Comprehensive School","t":"All Age","a":"Staniel Cay, Exuma","p":"242-355-2047","i":"Exuma","l":"Rural","s":"Staniel Cay"},{"n":"Bertram A. Newton Primary","t":"Primary","a":"Red Bays  North Andros","p":"242-225-7735 and 329-7786","i":"Andros","l":"Rural","s":"Red Bays"},{"n":"East End Secondary School","t":"Secondary","a":"Emmanuel Way","p":"242-353-5338","i":"Grand Bahama","l":"Urban","s":""},{"n":"Eight Mile Rock High","t":"Secondary","a":"Martin Town","p":"242-348-3781","i":"Grand Bahama","l":"Urban","s":"Eight Mile Rock"},{"n":"Freeport Primary School","t":"Primary","a":"Coral Road & Sun Coral Avenue","p":"242-373-7464","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"Grand Cay All Age","t":"All Age","a":"James Cephas Lane","p":"242-353-1347","i":"Grand Bahama","l":"Rural","s":"Grand Cay"},{"n":"Holmes Rock Primary","t":"Primary","a":"Walter Parker Drive,  Holmes Rock, Grand Bahama.","p":"242-349-3348/349-3792","i":"Grand Bahama","l":"Rural","s":"Holmes Rock"},{"n":"Hugh W. Campbell Primary","t":"Primary","a":"#2 Mahogany Street","p":"242-352-6990","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"Jack Hayward Junior High","t":"Secondary","a":"Settler's Way","p":"242-352-8400","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"Jack Hayward Senior High School","t":"Secondary","a":"Wild Cat Ave.  Pioneers Loop  Freeport, Grand Bahama Island","p":"242-373-8750/1/2","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"Laura L. Anderson Primary","t":"Primary","a":"Smith's Street  The Bluff, N. Eleuthera","p":"242-335-1233/242-225-3826","i":"Eleuthera","l":"Urban","s":"The Bluff"},{"n":"Lewis Yard Primary","t":"Primary","a":"Hunters","p":"242-353-7001","i":"Grand Bahama","l":"Urban","s":"Hunters"},{"n":"Marjorie Davis Institute of Special Education","t":"Special","a":"Deveaux Street","p":"242-323-0693/-5","i":"Bahamas","l":"Urban","s":"Nassau"},{"n":"Martin Town Primary","t":"Primary","a":"MTP Corner  Jones Town, Eight Mile Rock","p":"242-348-3682","i":"Grand Bahama","l":"Urban","s":"Martin Town EMR"},{"n":"Programme S. U. R. E.","t":"Special","a":"Gladstone Road","p":"242-341-2959","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Sister Annie Thompson Preschool","t":"Pre-primary","a":"#10 Cape and Sutton Streets off Kemp Road","p":"242-394-4831","i":"New Providence","l":"Urban","s":"Freetown"},{"n":"South Andros High","t":"Secondary","a":"Queen's Highway  Kemp's Bay  South Andros  Bahamas","p":"242-369-1869","i":"Andros","l":"Rural","s":"Kemp's Bay"},{"n":"Sweeting's Cay All Age","t":"Primary","a":"Sea Breeze Highway","p":"242-353-2125","i":"Grand Bahama","l":"Urban","s":""},{"n":"The Beacon School","t":"Special","a":"Frobisher Drive","p":"242-352-8445","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"Walter Parker Primary","t":"Primary","a":"East Beach Way & Gambier Drive","p":"242-373-5129","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"West End Primary","t":"Primary","a":"Queen's Highway, Grand Bahama","p":"242-346-6240","i":"Grand Bahama","l":"Urban","s":"West End"}],"Andros & The Berry Islands":[{"n":"Bartlett Hill Primary","t":"Primary","a":"Bartlett Hill, Eight Mile Rock","p":"242-348-3783","i":"Grand Bahama","l":"Urban","s":"Eight Mile Rock"},{"n":"Behring Point Primary","t":"Primary","a":"Queen's Highway  Behring Point  Central Andros","p":"242-225-2588 and 368-4063","i":"Andros","l":"Rural","s":"Behring Point"},{"n":"Black Point Comprehensive School","t":"All Age","a":"Stella Drive","p":"242-355-3038","i":"Exuma","l":"Rural","s":"Black Point"},{"n":"Bowen Sound Primary","t":"Primary","a":"Queen's Highway,   Bowen Sound  Central Andros","p":"(242)225-1472 and 242-368-4048","i":"Andros","l":"Rural","s":"Bowen Sound"},{"n":"Central Abaco Primary","t":"Primary","a":"Abaco, Dundas Town,Central Pines Boulevard","p":"242-367-3457","i":"Abacos","l":"Urban","s":"Dundas Town"},{"n":"Clara E. Evans Primary School","t":"Primary","a":"Lawson Street  Nicholl's Town  North Andros","p":"242-225-9102 and 329-2452","i":"Andros","l":"Rural","s":"Nicoll's Town"},{"n":"Cleora L. McKenzie Preschool","t":"Pre-primary","a":"Long Bay Cays","p":"242-369-1215","i":"Andros","l":"Rural","s":"Long Bay Cays"},{"n":"Deep Creek Preschool","t":"Pre-primary","a":"Deep Creek, Andros","p":"242-369-5445","i":"Andros","l":"Urban","s":"Deep Creek"},{"n":"Fresh Creek Primary","t":"Primary","a":"Queen's Highway  Fresh Creek, Central Andros","p":"242-368-2074 / 242-225-8821","i":"Andros","l":"Urban","s":"Fresh Creek"},{"n":"High Rock Primary","t":"Primary","a":"The Bluff, South Andros","p":"(242)-369-4547","i":"Andros","l":"Rural","s":"The Bluff"},{"n":"Huntley Christie High","t":"Secondary","a":"Queen's Highway  Nicholl's Town  North Andros","p":"242-329-2322 / 242-225-0833","i":"Andros","l":"Urban","s":"Nicoll's Town"},{"n":"Lovely Bay Primary","t":"Primary","a":"Oueen's Highway","p":"242-344-3162","i":"Acklins","l":"Rural","s":"Lovely Bay"},{"n":"Man-O-War Primary","t":"Primary","a":"Queen's Highway, Man-O-War Cay","p":"242-365-6049","i":"Abacos","l":"Rural","s":"Man-O-War Cay"},{"n":"R. M. Bailey Senior High","t":"Secondary","a":"Robinson Road  Nassau, Bahamas","p":"242-393-2295","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Ragged Island All Age","t":"Primary","a":"High & Charles","p":"242-344-1533","i":"Ragged Island","l":"Rural","s":"Duncan Town"},{"n":"Rolleville Primary","t":"Primary","a":"Rolleville","p":"242-345-6032/2428024250","i":"Exuma","l":"Rural","s":"Rolleville"},{"n":"Snug Corner Primary","t":"Primary","a":"Queen's Highway  Snug corner,  Acklins","p":"242-344-3160","i":"Acklins","l":"Urban","s":"Snug Corner"},{"n":"St. Georges High School","t":"Secondary","a":"Sunset Highway","p":"242-352-7373","i":"Grand Bahama","l":"Urban","s":"Freeport"},{"n":"Victoria Point Preschool","t":"Pre-primary","a":"Victoria Point, Mangrove Cay","p":"242-369-0524","i":"Andros","l":"Rural","s":"Victoria Point"}],"Eastern New Providence Primary":[{"n":"Burnt Rock Primary","t":"Primary","a":"Burnt Rock, Mangrove Cay - Andros","p":"242-369-0125","i":"Andros","l":"Rural","s":"Burnt Rock"},{"n":"C. W. Sawyer Primary","t":"Primary","a":"Tonique Darling Highway & Graham Drive","p":"242-328-8860 / 807-2064","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Centre for The Deaf (Bahamas Red Cross )","t":"Special","a":"Moss Road","p":"242-323-6767 / 468-8558","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Claridge Primary","t":"Primary","a":"Penny Savings Bank Lane","p":"242-393-3661","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Cleveland Eneas Primary School","t":"Primary","a":"Buttonwood Avenue, Pinewood Gardens, New Providence, Bahamas","p":"242-392-8324 / 242-392-2213","i":"New Providence","l":"Rural","s":"Pinewood"},{"n":"Coconut Grove Preschool","t":"Pre-primary","a":"Coconut Grove  Acklins Street","p":"242 3233054","i":"New Providence","l":"Urban","s":"Coconut Grove"},{"n":"Columbus Primary","t":"Primary","a":"Collins Avenue & Wulff Road","p":"(242)322-8172 / (242) 323-7940","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"E. P. Roberts Primary","t":"Primary","a":"Balfour Avenue & Miami Street","p":"242-323-4304","i":"Bahamas","l":"Urban","s":"Nassau"},{"n":"Early Childhood Development Center","t":"Pre-primary","a":"East Street South","p":"242-324-7639","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"P. A. Gibson Primary","t":"Primary","a":"Hatchet Bay","p":"242-335-0071","i":"Eleuthera","l":"Urban","s":"Hatchet Bay"},{"n":"Rev. Euthal Rodgers Primary","t":"Primary","a":"Deep Creek, South Andros","p":"242-369-5085","i":"Andros","l":"Urban","s":"Deep Creek"},{"n":"S. C. McPherson Junior High School","t":"Secondary","a":"Baillou Hill Road","p":"242-361-4339 /4455","i":"New Providence","l":"Urban","s":"Blue Hill"},{"n":"San Salvador Central High School","t":"Secondary","a":"Queen's Highway, United Estates, San Salvador","p":"242-331-2488","i":"San Salvador","l":"Rural","s":"Unites Estates"},{"n":"Simms Primary","t":"Primary","a":"Queen's Highway, Simms, Long Island","p":"242-338-8008","i":"Long Island","l":"Rural","s":"Simms"},{"n":"Thelma Gibson Primary School","t":"Primary","a":"Commonwealth Blvd, Elizabeth Estates","p":"242-364-1361","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Uriah McPhee Primary School","t":"Primary","a":"Kemp Road & Williams Lane","p":"242-393-3147","i":"New Providence","l":"Urban","s":""}],"Northern New Providence Secondary":[{"n":"Buttonwood Preschool","t":"Pre-primary","a":"Saffron Street, Pinewood Gardens","p":"242-394-2050","i":"New Providence","l":"Urban","s":"Pinewood"},{"n":"C. H. Reeves Junior High","t":"Secondary","a":"Ethel & Minnie Streets","p":"242-323-1915 / 242-323-4839","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"C. I. Gibson Senior High","t":"Secondary","a":"Marathon Road","p":"242-393-0743","i":"New Providence","l":"Urban","s":"Marathon"},{"n":"D. W. Davis Junior High","t":"Secondary","a":"Wilton Street","p":"242-322-3078","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"Doris Johnson Senior High","t":"Secondary","a":"262 Prince Charles Drive","p":"242-364-5263/4","i":"New Providence","l":"Urban","s":"Prince Charles"},{"n":"Erin H. Gilmour School for the Blind","t":"All Age","a":"Ivanhoe Rd. off Mackey Street","p":"242-394-3197","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"H. O. Nash Junior High","t":"Secondary","a":"Dolphin Drive, Nassau, New Providence, Bahamas","p":"242-356-0820/323-6489","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"L. N. Coakley High","t":"Secondary","a":"Bodie Hill","p":"242-345-0508/9","i":"Exuma","l":"Rural","s":"Moss Town"},{"n":"Old Bight Primary","t":"Primary","a":"Old Bight","p":"242-342-4058","i":"Cat Island","l":"Rural","s":"Old Bight"},{"n":"Patrick J. Bethel High School","t":"Secondary","a":"Murphy Town, Forest Drive","p":"242-367-2334","i":"Abacos","l":"Urban","s":"Murphy Town"},{"n":"T. A. Thompson Junior High","t":"Secondary","a":"Gregory Street,  Nassau,  New Providence,  Bahamas","p":"242-325-1506/7","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"TAPS-Transitional Alternative Programme for Students","t":"Special","a":"Wulff Road","p":"242-393-0672","i":"New Providence","l":"Urban","s":"Marathon"},{"n":"The Hospital School (Virtual)","t":"Special","a":"Shirley Street","p":"242-3222861 EXT 7472","i":"New Providence","l":"Urban","s":"Nassau"}],"Eleuthera":[{"n":"Central Andros High","t":"Secondary","a":"Queen's Highway  Love Hill  Central Andros","p":"242-225-8667 and 368-2104","i":"Andros","l":"Rural","s":"Love Hill"},{"n":"Central Eleuthera High","t":"Secondary","a":"Church Street","p":"242-332-1248","i":"Eleuthera","l":"Urban","s":"North Palmetto Point"},{"n":"Deep Creek Primary","t":"Primary","a":"Queen's Highway","p":"242-334-8071","i":"Eleuthera","l":"Urban","s":"Deep Creek"},{"n":"Emily G. Petty Primary","t":"Primary","a":"Queen's Highway, Governor's Harbour, Eleuthera","p":"242-332-2325","i":"Eleuthera","l":"Urban","s":"Governor's Harbour"},{"n":"Emma E. Cooper Primary","t":"Primary","a":"Church Street, North Palmetto, Eleuthera","p":"242-332-1409","i":"Eleuthera","l":"Rural","s":"North Palmetto Point"},{"n":"Green Castle Primary","t":"Primary","a":"Queen's Highway","p":"242-334-6069","i":"Eleuthera","l":"Urban","s":"Green Castle"},{"n":"Gregory Town Primary","t":"Primary","a":"Queen's Highway","p":"242-335-5017","i":"Eleuthera","l":"Urban","s":"Gregory Town"},{"n":"Harbour Island All Age School","t":"All Age","a":"Court Street  Harbour Island  The Bahamas","p":"242-333-2824","i":"Eleuthera","l":"Urban","s":"Dunmore Town"},{"n":"James Cistern Primary","t":"Primary","a":"James' Cistern Queens Highway  Eleuthera, Bahamas","p":"+12423356007","i":"Eleuthera","l":"Rural","s":"James Cistern"},{"n":"L. W. Young Junior High","t":"Secondary","a":"Bernard Road","p":"242-393-2327/8","i":"New Providence","l":"Urban","s":"Bernard Rd"},{"n":"Naomi Blatch Preschool","t":"Pre-primary","a":"Baillou Road & John Road","p":"242-323-6545","i":"New Providence","l":"Urban","s":"Nassau"},{"n":"P. A. C. E-Providing Access for Continued Education","t":"Special","a":"East Street","p":"242-356-0943/676-5944","i":"New Providence","l":"Urban","s":"Centreville"},{"n":"Penn/Pratt Co-Educational Unit","t":"Secondary","a":"Fox Hill South","p":"242-364-8687","i":"Berry Islands","l":"Urban","s":"Fox Hill"},{"n":"Ridgeland Primary School","t":"Primary","a":"Ridgeland Park West  Nassau, N. P.","p":"242-325-3326 / 242-326-1477","i":"New Providence","l":"Urban","s":"Ridgeland"},{"n":"Salina Point Primary","t":"Primary","a":"Salina Point, Acklins","p":"242-344-3191","i":"Acklins","l":"Urban","s":"Salina Point"},{"n":"Tarpum Bay Primary","t":"Primary","a":"Queen's Highway","p":"242-334-4281","i":"Eleuthera","l":"Rural","s":"Tarpum Bay"},{"n":"Wemyss Bight Primary","t":"Primary","a":"Queen's Highway, Eleuthera","p":"242-334-0072","i":"Eleuthera","l":"Urban","s":"Wemyss Bright"}]};
+
+const DISTRICT_ORDER=["Abaco","Andros & The Berry Islands","Eastern New Providence Primary","ECLR (Exuma, Cat Island, Long Island, Ragged Island)","Eleuthera","Grand Bahama & Bimini","Northern New Providence Secondary","South Central Bahamas","Southern New Providence Secondary","Western New Providence Primary"];
+
+const CREST_SVG=`<svg viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5.25 3.83 10.16 9 11.27 5.17-1.11 9-6.02 9-11.27V7l-9-5z"/></svg>`;
+const PIN_SVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+const PHONE_SVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
+const ISLAND_SVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+const CHEVRON_SVG=`<svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+
+function typeClass(t){return 'type-'+t.toLowerCase().replace(/[\s-]/g,'-')}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+let activeFilter='all',searchTerm='';
+
+function render(){
+  const c=document.getElementById('districtContainer');
+  let html='',total=0;
+  for(const dn of DISTRICT_ORDER){
+    const schools=(DATA[dn]||[]).filter(s=>{
+      if(activeFilter!=='all'&&s.t!==activeFilter)return false;
+      if(searchTerm){const q=searchTerm.toLowerCase();return s.n.toLowerCase().includes(q)||s.i.toLowerCase().includes(q)||s.s.toLowerCase().includes(q)||s.a.toLowerCase().includes(q)}
+      return true;
+    });
+    if(!schools.length)continue;
+    total+=schools.length;
+    const ini=dn.split(/[\s&(]+/).filter(w=>w.length>1).slice(0,2).map(w=>w[0]).join('');
+    html+=`<div class="district" id="dist-${dn.replace(/\W/g,'')}">
+      <div class="district-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="district-left">
+          <div class="district-badge">${ini}</div>
+          <div><div class="district-name">${esc(dn)}</div><div class="district-meta">${schools.length} school${schools.length!==1?'s':''}</div></div>
+        </div>
+        <span class="school-count-badge">${schools.length} school${schools.length!==1?'s':''}</span>
+        ${CHEVRON_SVG}
+      </div>
+      <div class="district-body">
+        <div class="office-info">
+          <div class="office-info-item"><span class="label">District Superintendent</span><span class="value placeholder">[Superintendent Name]</span></div>
+          <div class="office-info-item"><span class="label">District Education Officer</span><span class="value placeholder">[Education Officer Name]</span></div>
+          <div class="office-info-item"><span class="label">Office Location</span><span class="value placeholder">[Office Address]</span></div>
+          <div class="office-info-item"><span class="label">Office Telephone</span><span class="value placeholder">[Office Phone Number]</span></div>
+        </div>
+        <div class="schools-grid">`;
+    for(const s of schools){
+      const addr=s.a.replace(/\s{2,}/g,', ');
+      html+=`<div class="school-card">
+        <div class="school-crest">${CREST_SVG}</div>
+        <div class="school-info">
+          <div class="school-name">${esc(s.n)}</div>
+          ${s.t?`<span class="school-type ${typeClass(s.t)}">${esc(s.t)}</span>`:''}
+          ${addr?`<div class="school-detail">${PIN_SVG} <span>${esc(addr)}</span></div>`:''}
+          ${s.i?`<div class="school-detail">${ISLAND_SVG} <span>${esc(s.i)}${s.s?', '+esc(s.s):''}</span></div>`:''}
+          ${s.p?`<div class="school-detail">${PHONE_SVG} <span>${esc(s.p)}</span></div>`:''}
+        </div>
+      </div>`;
+    }
+    html+=`</div></div></div>`;
+  }
+  if(!total)html=`<div class="no-results">No schools match your search. Try a different term or filter.</div>`;
+  c.innerHTML=html;
+  document.getElementById('resultCount').textContent=total+' school'+(total!==1?'s':'');
+}
+
+document.getElementById('filterPills').addEventListener('click',e=>{
+  const p=e.target.closest('.pill');if(!p)return;
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+  p.classList.add('active');activeFilter=p.dataset.filter;render();
+});
+
+let st;
+document.getElementById('searchInput').addEventListener('input',e=>{
+  clearTimeout(st);st=setTimeout(()=>{
+    searchTerm=e.target.value.trim();render();
+    if(searchTerm)document.querySelectorAll('.district').forEach(d=>d.classList.add('open'));
+  },200);
+});
+
+render();
+const first=document.querySelector('.district');if(first)first.classList.add('open');
+</script>
+</body>
+</html>
